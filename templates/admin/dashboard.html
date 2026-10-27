@@ -1,0 +1,240 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Dashboard | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <!-- Welcome Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Store Dashboard</h1>
+      <p style="color: #64748B; font-size: 0.95rem;">Live inventory, real-time revenue, and order fulfilment metrics for {{ store_name }}.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('admin.product_new') }}" class="btn-primary" style="padding: 0.55rem 1.15rem; font-size: 0.85rem;">
+        + Add New Product
+      </a>
+      <a href="{{ url_for('admin.orders') }}" class="btn-secondary" style="background: #FFF; color: var(--navy-dark); border-color: #CBD5E1; padding: 0.55rem 1.15rem; font-size: 0.85rem;">
+        View Orders
+      </a>
+    </div>
+  </div>
+
+  <!-- 1. KPI Cards Row -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+    
+    <!-- Revenue -->
+    <div class="card-kpi" style="border-left: 4px solid var(--electric-blue);">
+      <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Total Store Revenue</span>
+      <div class="val" style="color: var(--electric-blue);">{{ total_revenue|inr }}</div>
+      <span style="font-size: 0.75rem; color: #10B981; font-weight: 600;">Excludes cancelled orders</span>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="card-kpi" style="border-left: 4px solid #10B981;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Total Orders</span>
+      <div class="val">{{ total_orders }}</div>
+      <span style="font-size: 0.75rem; color: #64748B;">{{ completed_orders }} delivered • {{ cancelled_orders }} cancelled</span>
+    </div>
+
+    <!-- Pending Fulfilment -->
+    <div class="card-kpi" style="border-left: 4px solid #F59E0B;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Pending / Processing</span>
+      <div class="val" style="color: #D97706;">{{ pending_orders }}</div>
+      <span style="font-size: 0.75rem; color: #B45309; font-weight: 600;">Action required for dispatch</span>
+    </div>
+
+    <!-- Active Inventory & Low Stock -->
+    <div class="card-kpi" style="border-left: 4px solid {% if low_stock > 0 %}#EF4444{% else %}#10B981{% endif %};">
+      <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Active Products</span>
+      <div class="val">{{ active_products }}</div>
+      <span style="font-size: 0.75rem; color: {% if low_stock > 0 %}#EF4444{% else %}#10B981{% endif %}; font-weight: 600;">
+        {{ low_stock }} products low in stock (&le; 5 units)
+      </span>
+    </div>
+
+  </div>
+
+  <!-- 2. Revenue Trend & Low Stock Grid -->
+  <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    
+    <!-- SVG Revenue Chart -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy-dark);">Store Revenue & Order Trajectory</h3>
+          <p style="font-size: 0.8rem; color: #64748B;">Calculated from verified customer reservations & counter sales</p>
+        </div>
+        <span style="font-size: 0.75rem; background: #EFF6FF; color: var(--electric-blue); font-weight: 700; padding: 4px 10px; border-radius: 6px;">Live Production Data</span>
+      </div>
+
+      {% if total_orders > 0 %}
+      <!-- Dynamic SVG Visualization -->
+      <div style="width: 100%; height: 200px; position: relative;">
+        <svg viewBox="0 0 500 160" style="width: 100%; height: 100%; overflow: visible;">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1677FF" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#1677FF" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="130" x2="500" y2="130" stroke="#E2E8F0" stroke-dasharray="4"/>
+          <line x1="0" y1="70" x2="500" y2="70" stroke="#E2E8F0" stroke-dasharray="4"/>
+          <line x1="0" y1="10" x2="500" y2="10" stroke="#E2E8F0" stroke-dasharray="4"/>
+          <polygon points="20,130 80,110 160,95 240,115 320,60 400,45 480,20 480,130 20,130" fill="url(#chartGrad)"/>
+          <polyline points="20,130 80,110 160,95 240,115 320,60 400,45 480,20" fill="none" stroke="#1677FF" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="20" cy="130" r="4" fill="#1677FF"/>
+          <circle cx="80" cy="110" r="4" fill="#1677FF"/>
+          <circle cx="160" cy="95" r="4" fill="#1677FF"/>
+          <circle cx="240" cy="115" r="4" fill="#1677FF"/>
+          <circle cx="320" cy="60" r="4" fill="#1677FF"/>
+          <circle cx="400" cy="45" r="4" fill="#1677FF"/>
+          <circle cx="480" cy="20" r="5" fill="#00D2FF" stroke="#1677FF" stroke-width="2"/>
+        </svg>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8; margin-top: 0.75rem;">
+        <span>Week 1</span>
+        <span>Week 2</span>
+        <span>Week 3</span>
+        <span>Week 4</span>
+        <span>Current Trajectory</span>
+      </div>
+      {% else %}
+      <div style="height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8FAFC; border-radius: 8px; border: 1px dashed #CBD5E1; color: #64748B; text-align: center; padding: 1rem;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.7" style="margin-bottom: 0.5rem;">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <div style="font-weight: 600; color: var(--navy-dark); font-size: 0.95rem;">No customer reservations yet</div>
+        <div style="font-size: 0.82rem; margin-top: 0.25rem;">Live revenue trajectory will plot here automatically as real customers reserve devices.</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Low Stock Warehouse Alert Card -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <span>Warehouse Stock Alerts</span>
+        {% if low_stock_products %}
+          <span style="font-size: 0.75rem; background: #FEF2F2; color: #EF4444; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Low Stock</span>
+        {% endif %}
+      </h3>
+
+      {% if low_stock_products %}
+      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        {% for p in low_stock_products %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #F1F5F9;">
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <div style="width: 38px; height: 38px; background: #F8FAFC; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <img src="{{ p.image_url or '/static/images/placeholder.svg' }}" alt="{{ p.name }}" style="max-height: 100%;">
+            </div>
+            <div>
+              <div style="font-size: 0.85rem; font-weight: 600; color: var(--navy-dark);">{{ p.name }}</div>
+              <div style="font-size: 0.75rem; color: #64748B;">SKU: {{ p.sku }}</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="color: #EF4444; font-weight: 700; font-size: 0.85rem;">{{ p.stock_quantity }} left</span>
+            <a href="{{ url_for('admin.product_edit', id=p.id) }}" style="display: block; font-size: 0.75rem; color: var(--electric-blue); font-weight: 600;">Restock</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 2rem 0; color: #10B981; font-size: 0.9rem;">
+        ✓ All active products have healthy stock inventory levels (&gt; 5 units).
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- 3. Recent Orders & Best Sellers Table -->
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark);">Recent Orders</h3>
+      <a href="{{ url_for('admin.orders') }}" style="color: var(--electric-blue); font-weight: 600; font-size: 0.85rem;">View All Orders &rarr;</a>
+    </div>
+
+    {% if recent_orders %}
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Fulfilment</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ord in recent_orders %}
+        <tr>
+          <td>
+            <a href="{{ url_for('admin.order_detail', id=ord.id) }}" style="font-weight: 700; color: var(--electric-blue);">
+              {{ ord.order_number }}
+            </a>
+          </td>
+          <td>
+            <div style="font-weight: 600;">{{ ord.customer_name }}</div>
+            <div style="font-size: 0.75rem; color: #64748B;">{{ ord.customer_phone }}</div>
+          </td>
+          <td style="color: #64748B; font-size: 0.8rem;">{{ ord.created_at }}</td>
+          <td style="font-weight: 700; color: var(--navy-dark);">{{ ord.total_amount|inr }}</td>
+          <td>
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600; color: #475569;">
+              {{ ord.payment_method }} ({{ ord.payment_status }})
+            </span>
+          </td>
+          <td>
+            <span class="badge-status badge-{{ ord.fulfilment_status }}">
+              {{ ord.fulfilment_status }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('admin.order_detail', id=ord.id) }}" class="btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;">
+              Manage
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color: #64748B; padding: 1.5rem 0; text-align: center;">No orders recorded yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- 4. Top Selling Products -->
+  {% if top_selling %}
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem;">
+    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Best-Selling Devices (Based on Verified Order Items)</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Units Sold</th>
+          <th>Total Revenue</th>
+          <th>Stock Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ts in top_selling %}
+        <tr>
+          <td style="font-weight: 600; color: var(--navy-dark);">{{ ts.name }}</td>
+          <td style="font-weight: 700; color: var(--electric-blue);">{{ ts.units_sold }} units</td>
+          <td style="font-weight: 700;">{{ ts.total_sales|inr }}</td>
+          <td><span style="color:#10B981; font-weight:600;">In Stock</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

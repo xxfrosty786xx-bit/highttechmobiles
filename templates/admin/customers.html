@@ -1,0 +1,65 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Registered Customers | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Registered Customers Directory</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Customer account information, order volumes, and lifetime spend values.</p>
+  </div>
+
+  <!-- Search -->
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form action="{{ url_for('admin.customers') }}" method="GET" style="display:flex; gap:0.75rem;">
+      <input type="text" name="q" placeholder="Search by customer name, email, or mobile..." value="{{ search }}" style="flex:1; padding:0.55rem 0.85rem; border:1px solid var(--border-light); border-radius:6px; font-size:0.875rem;">
+      <button type="submit" class="btn-primary" style="padding:0.55rem 1.25rem; font-size:0.85rem;">Search</button>
+      <a href="{{ url_for('admin.customers') }}" class="btn-secondary" style="background:#FFF; color:#475569; border-color:#CBD5E1; padding:0.55rem 0.85rem; font-size:0.85rem;">Reset</a>
+    </form>
+  </div>
+
+  <!-- Customers Table -->
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden;">
+    {% if customers %}
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Customer Name</th>
+          <th>Email Address</th>
+          <th>Mobile (+91)</th>
+          <th>Orders Count</th>
+          <th>Total Lifetime Spent</th>
+          <th>Registered Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td style="font-weight: 700; color: var(--navy-dark);">{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td style="color: #64748B;">{{ c.phone or 'Not set' }}</td>
+          <td><b>{{ c.order_count }}</b> orders</td>
+          <td style="font-weight: 700; color: var(--electric-blue);">{{ c.total_spent|inr }}</td>
+          <td style="font-size: 0.8rem; color: #64748B;">{{ c.created_at }}</td>
+          <td>
+            {% if c.is_active %}
+              <span style="color: #10B981; font-weight: 600; font-size: 0.8rem;">Active</span>
+            {% else %}
+              <span style="color: #EF4444; font-weight: 600; font-size: 0.8rem;">Suspended</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: #64748B;">
+      No registered customers match your search query.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

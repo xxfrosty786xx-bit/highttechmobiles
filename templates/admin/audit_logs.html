@@ -1,0 +1,55 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Security & Audit Logs | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Administrator Audit Trail</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Immutable audit log of all administrative operations, product edits, and order updates.</p>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    {% if logs %}
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Admin User</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Details</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in logs %}
+        <tr>
+          <td style="font-size: 0.8rem; color: #64748B; font-family: monospace;">{{ l.created_at }}</td>
+          <td style="font-weight: 700; color: var(--navy-dark);">{{ l.admin_name }}</td>
+          <td>
+            <span style="font-family: monospace; font-size: 0.75rem; background: #EFF6FF; color: var(--electric-blue); font-weight: 700; padding: 2px 6px; border-radius: 4px;">
+              {{ l.action }}
+            </span>
+          </td>
+          <td style="font-size: 0.8rem; font-weight: 600; color: #475569;">
+            {{ l.entity_type }} {% if l.entity_id %}#{{ l.entity_id }}{% endif %}
+          </td>
+          <td style="font-size: 0.75rem; color: #64748B; font-family: monospace; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {{ l.details_json or '-' }}
+          </td>
+          <td style="font-size: 0.8rem; color: #94A3B8; font-family: monospace;">{{ l.ip_address or '127.0.0.1' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: #64748B;">
+      No audit log records recorded yet.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

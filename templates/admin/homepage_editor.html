@@ -1,0 +1,85 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Homepage & Banners Editor | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 860px;">
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Homepage & Promotional Banners Editor</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Update the announcement bar, main hero headline, buttons, and call-to-actions without editing code.</p>
+  </div>
+
+  <form action="{{ url_for('admin.homepage_editor') }}" method="POST">
+    
+    <!-- 1. Announcement Bar Section -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark);">Top Announcement Bar</h3>
+          <p style="font-size: 0.8rem; color: #64748B;">Displayed at the very top of all customer pages.</p>
+        </div>
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+          <input type="checkbox" name="announcement_active" value="1" {% if settings.announcement_active == '1' %}checked{% endif %}>
+          <span>Visible to Customers</span>
+        </label>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Announcement Message</label>
+        <input type="text" name="announcement_text" value="{{ settings.announcement_text }}" placeholder="⚡ Mega Tech Sale: Get Flat 10% Off with code TECH10..." style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+      </div>
+    </div>
+
+    <!-- 2. Hero Section Content -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Main Homepage Hero Banner</h3>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Hero Badge Pill</label>
+        <input type="text" name="hero_badge" value="{{ settings.hero_badge }}" placeholder="LATEST SMARTPHONES & ACCESSORIES" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Main Headline *</label>
+        <input type="text" name="hero_title" required value="{{ settings.hero_title }}" placeholder="Upgrade Your Mobile Experience" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem; font-weight: 700;">
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Supporting Subtitle</label>
+        <textarea name="hero_subtitle" rows="3" placeholder="Top brands. Best prices. Unmatched quality..." style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">{{ settings.hero_subtitle }}</textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Primary Button Text</label>
+          <input type="text" name="hero_primary_btn_text" value="{{ settings.hero_primary_btn_text }}" placeholder="Shop Smartphones" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Primary Button Target URL</label>
+          <input type="text" name="hero_primary_btn_url" value="{{ settings.hero_primary_btn_url }}" placeholder="/shop?category=smartphones" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Secondary Button Text</label>
+          <input type="text" name="hero_secondary_btn_text" value="{{ settings.hero_secondary_btn_text }}" placeholder="Explore Latest Deals" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Secondary Button Target URL</label>
+          <input type="text" name="hero_secondary_btn_url" value="{{ settings.hero_secondary_btn_url }}" placeholder="/shop?deals=true" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+      Publish Homepage Changes &rarr;
+    </button>
+
+  </form>
+
+</div>
+{% endblock %}

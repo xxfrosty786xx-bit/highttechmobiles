@@ -1,0 +1,109 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Coupons & Promotions | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Coupons & Promotions Manager</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Configure discount codes, minimum basket values, and promotional campaigns.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: flex-start;">
+    
+    <!-- Add Coupon Form -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">+ Create Coupon</h3>
+      
+      <form action="{{ url_for('admin.coupons') }}" method="POST">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Coupon Code *</label>
+          <input type="text" name="code" required placeholder="e.g. DIWALI15" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; text-transform: uppercase;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Discount Type</label>
+          <select name="discount_type" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; background: #FFF;">
+            <option value="percentage">Percentage (%) Off</option>
+            <option value="fixed">Flat Amount (₹) Off</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Discount Value *</label>
+          <input type="number" step="0.01" name="discount_value" required placeholder="e.g. 10 or 500" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Min Order Amount (₹)</label>
+          <input type="number" step="0.01" name="min_order_amount" value="999" placeholder="e.g. 999" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Max Discount Cap (₹, Optional)</label>
+          <input type="number" step="0.01" name="max_discount_amount" placeholder="e.g. 2000" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Usage Limit</label>
+          <input type="number" name="usage_limit" placeholder="e.g. 500" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.65rem;">Create Coupon</button>
+      </form>
+    </div>
+
+    <!-- Active Coupons Table -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden;">
+      <div style="padding: 1rem 1.25rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-weight: 700; color: var(--navy-dark); font-size: 0.9rem;">
+        Active Coupon Codes ({{ coupons|length }})
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Min Order</th>
+            <th>Used</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in coupons %}
+          <tr>
+            <td style="font-weight: 700; color: var(--electric-blue); font-family: monospace; font-size: 0.95rem;">
+              {{ c.code }}
+            </td>
+            <td style="text-transform: capitalize;">{{ c.discount_type }}</td>
+            <td style="font-weight: 600;">
+              {% if c.discount_type == 'percentage' %}{{ c.discount_value }}%{% else %}{{ c.discount_value|inr }}{% endif %}
+            </td>
+            <td>{{ c.min_order_amount|inr }}</td>
+            <td><b>{{ c.times_used }}</b> / {{ c.usage_limit or '&infin;'|safe }}</td>
+            <td>
+              {% if c.is_active %}
+                <span style="color: #10B981; font-weight: 600; font-size: 0.8rem;">Active</span>
+              {% else %}
+                <span style="color: #EF4444; font-weight: 600; font-size: 0.8rem;">Disabled</span>
+              {% endif %}
+            </td>
+            <td>
+              <form action="{{ url_for('admin.coupon_toggle', id=c.id) }}" method="POST">
+                <button type="submit" style="background:none; border:none; color:var(--electric-blue); font-size:0.75rem; font-weight:600; cursor:pointer;">
+                  {% if c.is_active %}Disable{% else %}Enable{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

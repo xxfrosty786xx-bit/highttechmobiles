@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 860px;">
+  
+  <span class="section-tag">About Our Store</span>
+  <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--navy-dark); margin: 0.5rem 0 1.5rem 0;">
+    HIGH TECH MOBILE
+  </h1>
+
+  <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); line-height: 1.8; color: #475569; font-size: 1rem;">
+    
+    <p style="margin-bottom: 1.5rem;">
+      Founded and directed by <strong>Avid Malik & Danish Malik</strong>, <strong>HIGH TECH MOBILE</strong> is India’s forward-thinking technology showroom dedicated to bringing authentic, brand-sealed flagship smartphones, wearables, high-speed GaN chargers, and premium electronics directly to customers with 100% in-store inspection and counter payment.
+    </p>
+
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); margin: 1.5rem 0 0.75rem 0;">Our Brand Commitments:</h3>
+    <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+      <li><strong>100% Genuine Inventory:</strong> We source strictly from verified national brand distributors with valid manufacturer warranties.</li>
+      <li><strong>Dukan Par Aakar Kharidein:</strong> Customers verify sealed-pack boxes and unbox devices in front of store owners Avid Malik & Danish Malik before paying.</li>
+      <li><strong>Zero Advance Required:</strong> Instant online device reservation with ₹0 advance payment.</li>
+      <li><strong>Official Tax Invoices:</strong> Genuine GST invoices providing valid all-India brand warranty coverage.</li>
+    </ul>
+
+    <div style="background: #F8FAFC; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-light); margin-top: 2rem;">
+      <h4 style="color: var(--navy-dark); font-weight: 700; margin-bottom: 0.5rem;">Showroom & Headquarters</h4>
+      <div><strong>Owners:</strong> Avid Malik & Danish Malik</div>
+      <div>📍 {{ store_address }}</div>
+      <div>📞 {{ contact_phone }}</div>
+      <div>✉️ {{ contact_email }}</div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

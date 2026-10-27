@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error (500) | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 5rem; padding-bottom: 7rem; text-align: center; max-width: 600px;">
+  <div style="font-size: 5rem; font-weight: 800; color: #EF4444; line-height: 1; margin-bottom: 1rem;">500</div>
+  <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark); margin-bottom: 0.75rem;">Internal Processing Error</h1>
+  <p style="color: #64748B; font-size: 1rem; margin-bottom: 2rem;">Our database or servers encountered an unexpected condition. Please try again shortly.</p>
+  <a href="{{ url_for('store.home') }}" class="btn-primary" style="padding: 0.75rem 2rem;">Return to Homepage</a>
+</div>
+{% endblock %}

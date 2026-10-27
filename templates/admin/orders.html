@@ -1,0 +1,92 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Orders & Shipments | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Orders & Fulfilment</h1>
+      <p style="color: #64748B; font-size: 0.95rem;">Track shipments, dispatch couriers, and manage customer payments.</p>
+    </div>
+  </div>
+
+  <!-- Status Tabs -->
+  <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 1.5rem; overflow-x: auto;">
+    <a href="{{ url_for('admin.orders') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if not current_status %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">All Reservations</a>
+    <a href="{{ url_for('admin.orders', status='confirmed') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if current_status == 'confirmed' %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">Confirmed Bookings</a>
+    <a href="{{ url_for('admin.orders', status='processing') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if current_status == 'processing' %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">Kept in Storage</a>
+    <a href="{{ url_for('admin.orders', status='ready_pickup') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if current_status == 'ready_pickup' %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">Ready at Counter</a>
+    <a href="{{ url_for('admin.orders', status='delivered') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if current_status == 'delivered' %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">Collected by Customer</a>
+    <a href="{{ url_for('admin.orders', status='cancelled') }}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; {% if current_status == 'cancelled' %}background: var(--electric-blue); color: #FFF;{% else %}color: #64748B;{% endif %}">Cancelled</a>
+  </div>
+
+  <!-- Search Toolbar -->
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form action="{{ url_for('admin.orders') }}" method="GET" style="display: flex; gap: 0.75rem;">
+      <input type="text" name="q" placeholder="Search by Booking Token #, Customer Name, Mobile..." value="{{ search }}" style="flex: 1; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; outline: none;">
+      {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
+      <button type="submit" class="btn-primary" style="padding: 0.55rem 1.25rem; font-size: 0.85rem;">Search</button>
+      <a href="{{ url_for('admin.orders') }}" class="btn-secondary" style="background:#FFF; color:#475569; border-color:#CBD5E1; padding:0.55rem 0.85rem; font-size:0.85rem;">Reset</a>
+    </form>
+  </div>
+
+  <!-- Orders Table -->
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    {% if orders %}
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Booking Token</th>
+          <th>Customer Name</th>
+          <th>Mobile & WhatsApp</th>
+          <th>Showroom Visit Date</th>
+          <th>Total Counter Price</th>
+          <th>Status</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>
+            <a href="{{ url_for('admin.order_detail', id=o.id) }}" style="font-weight: 700; color: var(--electric-blue); font-family: monospace;">
+              {{ o.order_number }}
+            </a>
+          </td>
+          <td style="font-weight: 600; color: var(--navy-dark);">{{ o.customer_name }}</td>
+          <td>
+            <div style="font-size: 0.85rem; font-weight: 600;">📱 {{ o.customer_phone }}</div>
+            <a href="https://wa.me/91{{ o.customer_phone.replace('+', '').replace(' ', '')[-10:] }}?text=Hello%20{{ o.customer_name }},%20your%20smartphone%20booking%20{{ o.order_number }}%20is%20ready%20at%20High%20Tech%20Mobile%20Showroom!" target="_blank" style="display:inline-flex; align-items:center; gap:0.25rem; color:#15803D; font-size:0.75rem; font-weight:700; margin-top:2px;">
+              <span>💬 Message on WhatsApp</span>
+            </a>
+          </td>
+          <td style="font-size: 0.85rem; color: #475569;">
+            <b>{{ o.pickup_date }}</b>
+            {% if o.pickup_time %}<div style="font-size: 0.75rem; color: #64748B;">{{ o.pickup_time }}</div>{% endif %}
+          </td>
+          <td style="font-weight: 800; color: var(--navy-dark); font-size: 0.95rem;">{{ o.total_amount|inr }}</td>
+          <td>
+            <span class="badge-status badge-{{ o.fulfilment_status }}">
+              {{ o.fulfilment_status }}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <a href="{{ url_for('admin.order_detail', id=o.id) }}" class="btn-primary" style="padding: 0.35rem 0.85rem; font-size: 0.75rem;">
+              Manage &rarr;
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: #64748B;">
+      No showroom reservations found.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

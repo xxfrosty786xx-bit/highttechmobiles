@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop Smartphones, Audio & Tech Gear | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  
+  <!-- Breadcrumb -->
+  <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+    <a href="{{ url_for('store.home') }}">Home</a>
+    <span>/</span>
+    <span style="color: var(--navy-dark); font-weight: 600;">Shop Catalog</span>
+    {% if selected_category %}
+      <span>/</span>
+      <span style="text-transform: capitalize; color: var(--electric-blue);">{{ selected_category }}</span>
+    {% endif %}
+  </div>
+
+  <div style="display: grid; grid-template-columns: 260px 1fr; gap: 2rem; align-items: flex-start;">
+    
+    <!-- 1. Filters Sidebar -->
+    <aside style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); position: sticky; top: calc(var(--header-height) + 1.5rem);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-light);">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy-dark);">Filters</h3>
+        <a href="{{ url_for('store.shop') }}" style="font-size: 0.75rem; color: #EF4444; font-weight: 600;">Reset All</a>
+      </div>
+
+      <form action="{{ url_for('store.shop') }}" method="GET" id="filter-form">
+        
+        <!-- Keep query if present -->
+        {% if search_query %}
+          <input type="hidden" name="q" value="{{ search_query }}">
+        {% endif %}
+
+        <!-- Category Filter -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Categories</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.875rem;">
+            <a href="{{ url_for('store.shop', brand=selected_brand, q=search_query, deals=deals_only) }}" 
+               style="padding: 4px 8px; border-radius: 6px; {% if not selected_category %}background: #EFF6FF; color: var(--electric-blue); font-weight: 600;{% else %}color: #475569;{% endif %}">
+              All Categories
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('store.shop', category=cat.slug, brand=selected_brand, q=search_query, deals=deals_only) }}"
+               style="padding: 4px 8px; border-radius: 6px; {% if selected_category == cat.slug %}background: #EFF6FF; color: var(--electric-blue); font-weight: 600;{% else %}color: #475569;{% endif %}">
+              {{ cat.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Brand Filter -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Brand</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.875rem;">
+            <a href="{{ url_for('store.shop', category=selected_category, q=search_query, deals=deals_only) }}"
+               style="padding: 4px 8px; border-radius: 6px; {% if not selected_brand %}background: #EFF6FF; color: var(--electric-blue); font-weight: 600;{% else %}color: #475569;{% endif %}">
+              All Brands
+            </a>
+            {% for b in brands %}
+            <a href="{{ url_for('store.shop', category=selected_category, brand=b.slug, q=search_query, deals=deals_only) }}"
+               style="padding: 4px 8px; border-radius: 6px; {% if selected_brand == b.slug %}background: #EFF6FF; color: var(--electric-blue); font-weight: 600;{% else %}color: #475569;{% endif %}">
+              {{ b.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Price (INR)</h4>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="number" name="min_price" placeholder="Min ₹" value="{{ min_price or '' }}" style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.85rem;">
+            <span style="color:#94A3B8;">-</span>
+            <input type="number" name="max_price" placeholder="Max ₹" value="{{ max_price or '' }}" style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.85rem;">
+          </div>
+          {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+          {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.75rem; padding: 0.45rem; font-size: 0.8rem; justify-content: center; border-radius: 6px;">Apply Price</button>
+        </div>
+
+        <!-- In-Stock Filter -->
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #334155; cursor: pointer;">
+            <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %} onchange="document.getElementById('filter-form').submit()">
+            <span>In-Stock Only</span>
+          </label>
+        </div>
+
+      </form>
+    </aside>
+
+    <!-- 2. Products Catalog Right Column -->
+    <div>
+      
+      <!-- Top Bar: Result count & Sort Dropdown -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.9rem; color: #64748B;">
+          Showing <strong style="color: var(--navy-dark);">{{ products|length }}</strong> products
+          {% if search_query %}
+            for "<span style="color:var(--electric-blue);font-weight:600;">{{ search_query }}</span>"
+          {% endif %}
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label for="shop-sort" style="font-size: 0.85rem; color: #64748B;">Sort By:</label>
+          <select id="shop-sort" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.85rem; outline: none; background: #FFF;" onchange="location = this.value;">
+            <option value="{{ url_for('store.shop', category=selected_category, brand=selected_brand, q=search_query, sort='newest') }}" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="{{ url_for('store.shop', category=selected_category, brand=selected_brand, q=search_query, sort='popular') }}" {% if sort == 'popular' %}selected{% endif %}>Popular / Best Selling</option>
+            <option value="{{ url_for('store.shop', category=selected_category, brand=selected_brand, q=search_query, sort='price_asc') }}" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="{{ url_for('store.shop', category=selected_category, brand=selected_brand, q=search_query, sort='price_desc') }}" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="{{ url_for('store.shop', category=selected_category, brand=selected_brand, q=search_query, sort='name_asc') }}" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {% if products %}
+      <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+        {% for product in products %}
+        <div class="product-card">
+          
+          <div class="product-badge-group">
+            {% if product.is_bestseller %}
+              <span class="product-badge badge-bestseller">Best Seller</span>
+            {% elif product.is_new %}
+              <span class="product-badge badge-hot">New</span>
+            {% endif %}
+            {% if product.original_price and product.original_price > product.price %}
+              <span class="product-badge badge-discount">-{{ product|discount_pct }}%</span>
+            {% endif %}
+          </div>
+
+          <button class="product-wishlist-btn btn-wishlist-toggle" data-product-id="{{ product.id }}" title="Save to Wishlist" aria-label="Save to Wishlist">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+          </button>
+
+          <a href="{{ url_for('store.product_detail', slug=product.slug) }}" class="product-thumb-wrapper">
+            <img src="{{ product.image_url or '/static/images/placeholder.svg' }}" alt="{{ product.name }}" loading="lazy">
+          </a>
+
+          <div class="product-card-body">
+            <div class="product-brand">{{ product.brand_name }}</div>
+            <a href="{{ url_for('store.product_detail', slug=product.slug) }}">
+              <h3 class="product-name">{{ product.name }}</h3>
+            </a>
+            
+            <div class="product-rating">
+              <span>★★★★★</span>
+              <span>(4.9)</span>
+            </div>
+
+            <div class="product-price-row">
+              <span class="current-price">{{ product.price|inr }}</span>
+              {% if product.original_price and product.original_price > product.price %}
+                <span class="original-price">{{ product.original_price|inr }}</span>
+              {% endif %}
+            </div>
+
+            <button class="btn-add-cart btn-ajax-add-cart" data-product-id="{{ product.id }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+              </svg>
+              <span>Add to Cart</span>
+            </button>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="background: #FFFFFF; border: 1px dashed var(--border-light); border-radius: var(--radius-lg); padding: 4rem 2rem; text-align: center;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" style="margin: 0 auto 1rem auto;">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.5rem;">No products match your criteria</h3>
+        <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 1.5rem;">Try adjusting your filters, clearing the price range, or searching for other flagship smartphones.</p>
+        <a href="{{ url_for('store.shop') }}" class="btn-primary">Browse All Products</a>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

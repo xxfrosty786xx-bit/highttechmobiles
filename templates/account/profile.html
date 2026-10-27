@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}My Account | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy-dark);">My Account</h1>
+      <p style="color: #64748B; font-size: 0.95rem;">Welcome back, {{ user.name }} ({{ user.email }})</p>
+    </div>
+    <a href="{{ url_for('auth.logout') }}" class="btn-outline" style="border-color: #EF4444; color: #EF4444; font-size: 0.85rem;">Sign Out</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 240px 1fr; gap: 2.5rem; align-items: flex-start;">
+    
+    <!-- Sidebar -->
+    <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.95rem; font-weight: 600;">
+        <a href="{{ url_for('auth.account') }}" style="padding: 0.6rem 0.85rem; border-radius: 8px; background: #EFF6FF; color: var(--electric-blue);">Account Overview</a>
+        <a href="{{ url_for('auth.account_orders') }}" style="padding: 0.6rem 0.85rem; border-radius: 8px; color: #475569;">My Orders</a>
+        <a href="{{ url_for('store.wishlist') }}" style="padding: 0.6rem 0.85rem; border-radius: 8px; color: #475569;">My Wishlist</a>
+        {% if user.role == 'admin' %}
+          <a href="{{ url_for('admin.dashboard') }}" style="padding: 0.6rem 0.85rem; border-radius: 8px; background: #06152B; color: #FFF; margin-top: 1rem; text-align: center;">Open Admin Dashboard</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Main Account Area -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Profile Information -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm);">
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Personal Profile</h2>
+        <form action="{{ url_for('auth.update_profile') }}" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Full Name</label>
+            <input type="text" name="name" value="{{ user.name }}" required style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Mobile Number</label>
+            <input type="tel" name="phone" value="{{ user.phone or '' }}" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          </div>
+          <div style="grid-column: span 2;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Change Password (Leave blank to keep current)</label>
+            <input type="password" name="new_password" placeholder="New password" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          </div>
+          <div>
+            <button type="submit" class="btn-primary" style="padding: 0.6rem 1.5rem; font-size: 0.875rem;">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Recent Orders Card -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark);">Recent Orders</h2>
+          <a href="{{ url_for('auth.account_orders') }}" style="color: var(--electric-blue); font-weight: 600; font-size: 0.85rem;">View All &rarr;</a>
+        </div>
+
+        {% if orders %}
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          {% for ord in orders %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid var(--border-light); border-radius: 10px;">
+            <div>
+              <div style="font-weight: 700; color: var(--navy-dark); font-size: 0.95rem;">{{ ord.order_number }}</div>
+              <div style="color: #64748B; font-size: 0.8rem;">Placed on {{ ord.created_at }}</div>
+            </div>
+            <div>
+              <span style="display: inline-block; background: #EFF6FF; color: var(--electric-blue); font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 6px; text-transform: uppercase;">
+                {{ ord.fulfilment_status }}
+              </span>
+            </div>
+            <div style="font-weight: 700; color: var(--navy-dark);">{{ ord.total_amount|inr }}</div>
+            <a href="{{ url_for('auth.account_order_detail', order_number=ord.order_number) }}" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+              View Order
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #64748B; font-size: 0.9rem;">You haven't placed any orders yet.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

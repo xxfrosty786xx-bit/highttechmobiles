@@ -1,0 +1,138 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Categories & Brands | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div>
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Categories & Brands Management</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Organize smartphone collections and brand partnerships.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    
+    <!-- 1. Categories Column -->
+    <div>
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">+ Add New Category</h3>
+        <form action="{{ url_for('admin.categories') }}" method="POST">
+          <input type="hidden" name="action" value="add_category">
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Category Name *</label>
+            <input type="text" name="name" required placeholder="e.g. Foldable Phones" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Cover Image URL</label>
+            <input type="url" name="image_url" placeholder="https://images.unsplash.com/..." style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Description</label>
+            <textarea name="description" rows="2" placeholder="Brief category summary..." style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" style="padding: 0.55rem 1.25rem; font-size: 0.85rem;">Save Category</button>
+        </form>
+      </div>
+
+      <!-- Categories List -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden;">
+        <div style="padding: 1rem 1.25rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-weight: 700; color: var(--navy-dark); font-size: 0.9rem;">
+          Active Store Categories ({{ categories|length }})
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Slug</th>
+              <th>Products</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <img src="{{ cat.image_url }}" alt="{{ cat.name }}" style="width:30px; height:30px; border-radius:4px; object-fit:cover;">
+                  <b>{{ cat.name }}</b>
+                </div>
+              </td>
+              <td style="font-family: monospace; font-size: 0.75rem;">{{ cat.slug }}</td>
+              <td><b>{{ cat.product_count }}</b> items</td>
+              <td>
+                {% if cat.is_active %}
+                  <span style="color:#10B981; font-weight:600; font-size:0.75rem;">Active</span>
+                {% else %}
+                  <span style="color:#EF4444; font-weight:600; font-size:0.75rem;">Disabled</span>
+                {% endif %}
+              </td>
+              <td>
+                <form action="{{ url_for('admin.category_toggle', id=cat.id) }}" method="POST">
+                  <button type="submit" style="background:none; border:none; color:var(--electric-blue); font-size:0.75rem; font-weight:600; cursor:pointer;">
+                    {% if cat.is_active %}Disable{% else %}Enable{% endif %}
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. Brands Column -->
+    <div>
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">+ Add New Brand</h3>
+        <form action="{{ url_for('admin.categories') }}" method="POST">
+          <input type="hidden" name="action" value="add_brand">
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Brand Name *</label>
+            <input type="text" name="name" required placeholder="e.g. Nothing / OnePlus / Xiaomi" style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Brand Logo SVG / PNG URL</label>
+            <input type="url" name="logo_url" placeholder="https://..." style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+          </div>
+
+          <button type="submit" class="btn-primary" style="padding: 0.55rem 1.25rem; font-size: 0.85rem;">Save Brand</button>
+        </form>
+      </div>
+
+      <!-- Brands List -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); overflow: hidden;">
+        <div style="padding: 1rem 1.25rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-weight: 700; color: var(--navy-dark); font-size: 0.9rem;">
+          Official Brand Partners ({{ brands|length }})
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Slug</th>
+              <th>Catalog Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in brands %}
+            <tr>
+              <td><b>{{ b.name }}</b></td>
+              <td style="font-family: monospace; font-size: 0.75rem;">{{ b.slug }}</td>
+              <td><b>{{ b.product_count }}</b> models</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

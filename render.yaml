@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: high-tech-mobile
+    env: python
+    buildCommand: "pip install -r requirements.txt && python seed.py && python setup_admin.py --email avidmalikhts@gmail.com --password nayra@99667 --name 'Avid Malik' --force && python setup_admin.py --email danishmalikhts@gmail.com --password nayra@99667 --name 'Danish Malik' --force"
+    startCommand: "gunicorn wsgi:app --workers 3 --threads 2 --timeout 120"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_NAME
+        value: "Avid Malik & Danish Malik"
+      - key: ADMIN_EMAIL
+        value: "avidmalikhts@gmail.com"
+      - key: ADMIN_DEFAULT_PASSWORD
+        value: "nayra@99667"
+      - key: PYTHON_VERSION
+        value: "3.11.9"

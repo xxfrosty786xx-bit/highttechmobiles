@@ -1,0 +1,105 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Store Configuration & Settings | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 860px;">
+  
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark);">Store Configuration & Settings</h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Manage brand information, address, logistics thresholds, and payment gateway options.</p>
+  </div>
+
+  <form action="{{ url_for('admin.settings') }}" method="POST">
+    
+    <!-- 1. Store Identity & Contact -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Brand Identity & Contact</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Store Legal Brand Name</label>
+          <input type="text" name="store_name" value="{{ config.store_name }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Brand Tagline</label>
+          <input type="text" name="store_tagline" value="{{ config.store_tagline }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Customer Support Email</label>
+          <input type="email" name="contact_email" value="{{ config.contact_email }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Customer Support Phone</label>
+          <input type="text" name="contact_phone" value="{{ config.contact_phone }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Showroom & Dispatch Warehouse Address</label>
+        <textarea name="store_address" rows="2" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">{{ config.store_address }}</textarea>
+      </div>
+    </div>
+
+    <!-- 2. Logistics & Delivery Rules -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Shipping & Delivery Parameters</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Free Delivery Threshold (INR ₹)</label>
+          <input type="number" step="0.01" name="free_shipping_threshold" value="{{ config.free_shipping_threshold }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          <span style="font-size: 0.75rem; color: #64748B;">Orders above this value receive free shipping.</span>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Standard Shipping Charge (INR ₹)</label>
+          <input type="number" step="0.01" name="default_shipping_fee" value="{{ config.default_shipping_fee }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          <span style="font-size: 0.75rem; color: #64748B;">Applied if order amount is below the free threshold.</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Cash on Delivery (COD)</label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; margin-top: 0.5rem; cursor: pointer;">
+            <input type="checkbox" name="cod_enabled" value="1" {% if config.cod_enabled == '1' %}checked{% endif %}>
+            <span>Allow Cash & UPI on Delivery orders</span>
+          </label>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Indian GST / Tax Rate (%)</label>
+          <input type="number" step="0.01" name="tax_rate" value="{{ config.tax_rate }}" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem;">
+          <span style="font-size: 0.75rem; color: #64748B;">Standard Indian GST rate for consumer electronics is 18%.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Payment Gateway Settings -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Online Payment Gateway (Razorpay)</h3>
+      
+      <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1rem;">
+        Enable Razorpay to accept UPI apps (Google Pay, PhonePe, Paytm), RuPay, Visa, and NetBanking online. Keep disabled if operating in Cash on Delivery / Offline Collection mode.
+      </p>
+
+      <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer;">
+        <input type="checkbox" name="razorpay_enabled" value="1" {% if config.razorpay_enabled == '1' %}checked{% endif %}>
+        <span>Enable Live Razorpay Online Payments</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+      Save Configuration Changes
+    </button>
+
+  </form>
+
+</div>
+{% endblock %}

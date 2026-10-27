@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.order_number }} | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem; max-width: 860px;">
+  
+  <div style="margin-bottom: 2rem;">
+    <a href="{{ url_for('auth.account_orders') }}" style="font-size: 0.85rem; color: var(--electric-blue); font-weight: 600;">&larr; Back to Orders</a>
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy-dark); margin-top: 0.5rem;">Order #{{ order.order_number }}</h1>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+      <div>
+        <div style="font-size: 0.85rem; color: #64748B;">Order Date: {{ order.created_at }}</div>
+        <div style="font-size: 0.85rem; color: #64748B; margin-top: 0.25rem;">Payment: <b style="text-transform: uppercase;">{{ order.payment_method }} ({{ order.payment_status }})</b></div>
+      </div>
+      <div>
+        <span style="display: inline-block; background: #EFF6FF; color: var(--electric-blue); font-weight: 700; font-size: 0.85rem; padding: 0.4rem 0.9rem; border-radius: 8px; text-transform: uppercase;">
+          {{ order.fulfilment_status }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Tracking info -->
+    {% if order.courier_name or order.tracking_number %}
+    <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between;">
+      <div>Courier: <b>{{ order.courier_name }}</b></div>
+      <div>Tracking AWB: <b style="color:var(--electric-blue);">{{ order.tracking_number }}</b></div>
+    </div>
+    {% endif %}
+
+    <!-- Items -->
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1rem;">Items</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <thead>
+        <tr style="background: #F8FAFC; border-bottom: 1px solid var(--border-light); text-align: left; color: #64748B; font-size: 0.8rem; text-transform: uppercase;">
+          <th style="padding: 0.75rem 1rem;">Product</th>
+          <th style="padding: 0.75rem 1rem; text-align: center;">Qty</th>
+          <th style="padding: 0.75rem 1rem; text-align: right;">Unit Price</th>
+          <th style="padding: 0.75rem 1rem; text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for itm in items %}
+        <tr style="border-bottom: 1px solid var(--border-light);">
+          <td style="padding: 0.75rem 1rem;">
+            <b>{{ itm.product_name }}</b>
+            {% if itm.variant_details %}<div style="font-size:0.75rem; color:#64748B;">{{ itm.variant_details }}</div>{% endif %}
+          </td>
+          <td style="padding: 0.75rem 1rem; text-align: center;">{{ itm.quantity }}</td>
+          <td style="padding: 0.75rem 1rem; text-align: right;">{{ itm.unit_price|inr }}</td>
+          <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 600;">{{ itm.total_price|inr }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="width: 260px; margin-left: auto; font-size: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #64748B;">
+        <span>Subtotal:</span>
+        <span style="font-weight: 600; color: var(--navy-dark);">{{ order.subtotal|inr }}</span>
+      </div>
+      {% if order.discount_amount > 0 %}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #10B981;">
+        <span>Discount:</span>
+        <span style="font-weight: 700;">-{{ order.discount_amount|inr }}</span>
+      </div>
+      {% endif %}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #64748B;">
+        <span>Shipping:</span>
+        <span>{% if order.shipping_fee == 0 %}FREE{% else %}{{ order.shipping_fee|inr }}{% endif %}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--navy-dark); border-top: 1px solid var(--border-light); padding-top: 0.75rem; margin-top: 0.5rem;">
+        <span>Total:</span>
+        <span style="color: var(--electric-blue);">{{ order.total_amount|inr }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align: center;">
+    <button onclick="window.print()" class="btn-secondary" style="background:#FFF; color:var(--navy-dark); border-color:var(--border-light);">
+      Print Tax Invoice
+    </button>
+  </div>
+
+</div>
+{% endblock %}

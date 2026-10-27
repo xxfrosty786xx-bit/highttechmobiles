@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ store_name }} - Premium Smartphones & Electronics Store{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}HIGH TECH MOBILE is India's premier destination for genuine flagship smartphones, accessories, tablets, and wearable technology. Fast nationwide shipping & best prices.{% endblock %}">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- 1. Announcement Bar -->
+  {% if announcement_active and announcement_text %}
+  <aside class="announcement-bar">
+    <div class="container" style="text-align: center;">
+      <span>{{ announcement_text }}</span>
+    </div>
+  </aside>
+  {% endif %}
+
+  <!-- 2. Sticky Site Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="nav-wrapper">
+        
+        <!-- Animated Brand Logo -->
+        <a href="{{ url_for('store.home') }}" class="brand-logo" aria-label="High Tech Mobile Home">
+          <div class="brand-icon-wrapper">
+            <!-- Modern Tech SVG Crest with glowing elements -->
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <!-- Outer hexagon circuit -->
+              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#00D2FF" stroke-width="1.8" stroke-linejoin="round"/>
+              <!-- Phone silhouette inside -->
+              <rect x="9.5" y="7" width="9" height="14" rx="2" stroke="#FFFFFF" stroke-width="1.6" fill="#0A1C36"/>
+              <!-- Home indicator & camera -->
+              <circle cx="14" cy="9.2" r="0.75" fill="#38BDF8"/>
+              <line x1="12" y1="18.5" x2="16" y2="18.5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round"/>
+              <!-- Signal waves -->
+              <path d="M20.5 12C21.2 12.8 21.2 14.2 20.5 15" stroke="#00D2FF" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M7.5 12C6.8 12.8 6.8 14.2 7.5 15" stroke="#00D2FF" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="brand-text-container">
+            <span class="brand-title">{{ store_name }}</span>
+            <span class="brand-subtitle">Showroom • Store Pickup</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="desktop-nav" aria-label="Main Navigation">
+          <a href="{{ url_for('store.home') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+          <a href="{{ url_for('store.shop', category='smartphones') }}" class="nav-link {% if request.args.get('category') == 'smartphones' %}active{% endif %}">Smartphones</a>
+          <a href="{{ url_for('store.shop', category='tablets') }}" class="nav-link {% if request.args.get('category') == 'tablets' %}active{% endif %}">Tablets</a>
+          <a href="{{ url_for('store.shop', category='laptops') }}" class="nav-link {% if request.args.get('category') == 'laptops' %}active{% endif %}">Laptops</a>
+          <a href="{{ url_for('store.shop', category='smartwatches') }}" class="nav-link {% if request.args.get('category') == 'smartwatches' %}active{% endif %}">Smartwatches</a>
+          <a href="{{ url_for('store.shop', category='accessories') }}" class="nav-link {% if request.args.get('category') == 'accessories' %}active{% endif %}">Accessories</a>
+          <a href="{{ url_for('store.shop', deals='true') }}" class="nav-link {% if request.args.get('deals') == 'true' %}active{% endif %}" style="color:#38BDF8">Deals</a>
+          <a href="{{ url_for('store.contact') }}" class="nav-link">Contact</a>
+        </nav>
+
+        <!-- Live Search Bar -->
+        <div class="search-container">
+          <form action="{{ url_for('store.shop') }}" method="GET" class="search-input-wrapper">
+            <svg class="search-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" id="store-search-input" name="q" placeholder="Search iPhone, Galaxy, earbuds..." autocomplete="off" value="{{ request.args.get('q', '') }}">
+          </form>
+          <div id="store-search-dropdown" class="search-dropdown"></div>
+        </div>
+
+        <!-- Right Action Icons -->
+        <div class="nav-actions">
+          
+          <!-- Wishlist -->
+          <a href="{{ url_for('store.wishlist') }}" class="action-btn" title="Saved Wishlist" aria-label="Wishlist">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+            <span class="badge-count wishlist-badge-count" style="display: {% if wishlist_count > 0 %}flex{% else %}none{% endif %}">{{ wishlist_count }}</span>
+          </a>
+
+          <!-- Cart -->
+          <a href="{{ url_for('store.cart') }}" class="action-btn" title="Shopping Cart" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="21" r="1"/>
+              <circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            <span class="badge-count cart-badge-count" style="display: {% if cart_count > 0 %}flex{% else %}none{% endif %}">{{ cart_count }}</span>
+          </a>
+
+          <!-- User Account / Sign In -->
+          {% if current_user %}
+            <div style="position: relative; display: inline-block;">
+              <a href="{{ url_for('auth.account') }}" class="btn-secondary" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span>{{ current_user.name.split(' ')[0] }}</span>
+              </a>
+              {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin.dashboard') }}" class="btn-primary" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; margin-left:0.5rem">Admin</a>
+              {% endif %}
+            </div>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.85rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" x2="3" y1="12" y2="12"/>
+              </svg>
+              <span>Sign In</span>
+            </a>
+          {% endif %}
+
+          <!-- Mobile Toggle Button -->
+          <button class="mobile-toggle" aria-label="Toggle Mobile Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="12" y2="12"/>
+              <line x1="4" x2="20" y1="6" y2="6"/>
+              <line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-drawer" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; backdrop-filter: blur(5px);">
+    <div style="background: #06152B; width: 300px; height: 100%; padding: 2rem; color: #FFF; display: flex; flex-direction: column; gap: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 800; font-size: 1.2rem;">{{ store_name }}</span>
+        <button id="mobile-drawer-close" style="background:none; border:none; color:#FFF; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <nav style="display: flex; flex-direction: column; gap: 1rem; font-size: 1.1rem; font-weight: 500;">
+        <a href="{{ url_for('store.home') }}">Home</a>
+        <a href="{{ url_for('store.shop', category='smartphones') }}">Smartphones</a>
+        <a href="{{ url_for('store.shop', category='tablets') }}">Tablets</a>
+        <a href="{{ url_for('store.shop', category='laptops') }}">Laptops</a>
+        <a href="{{ url_for('store.shop', category='smartwatches') }}">Smartwatches</a>
+        <a href="{{ url_for('store.shop', category='accessories') }}">Accessories</a>
+        <a href="{{ url_for('store.shop', deals='true') }}" style="color:#38BDF8">Deals</a>
+        <a href="{{ url_for('store.track_order') }}">Track Order</a>
+        <a href="{{ url_for('store.contact') }}">Contact Us</a>
+      </nav>
+      <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        {% if current_user %}
+          <div>Signed in as <b>{{ current_user.name }}</b></div>
+          <a href="{{ url_for('auth.logout') }}" style="color:#EF4444; font-size:0.9rem; margin-top:0.5rem; display:block;">Sign Out</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn-primary" style="width:100%; justify-content:center;">Sign In</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Messages Banner -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; font-weight:700; cursor:pointer;">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main View Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- 3. Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        
+        <!-- Col 1: Brand Info -->
+        <div class="footer-col">
+          <div class="brand-logo" style="margin-bottom: 1rem;">
+            <div class="brand-icon-wrapper" style="width:36px; height:36px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                <path d="M12 18h.01"/>
+              </svg>
+            </div>
+            <span>{{ store_name }}</span>
+          </div>
+          <p style="line-height: 1.7; font-size: 0.9rem; margin-bottom: 1.25rem;">
+            India's premier physical showroom and technology retailer. 100% genuine sealed pack devices, live in-store inspection, zero advance reservation, and counter payment. Dukan par aakar kharidein!
+          </p>
+          <div style="font-size: 0.85rem; color: #CBD5E1;">
+            <div>📍 {{ store_address }}</div>
+            <div style="margin-top:0.35rem">📞 {{ contact_phone }} (Avid Malik & Danish Malik)</div>
+            <div style="margin-top:0.35rem">✉️ {{ contact_email }}</div>
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div class="footer-col">
+          <h4>Explore Shop</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('store.shop', category='smartphones') }}">Flagship Smartphones</a></li>
+            <li><a href="{{ url_for('store.shop', category='tablets') }}">iPads & Pro Tablets</a></li>
+            <li><a href="{{ url_for('store.shop', category='smartwatches') }}">Smartwatches & Bands</a></li>
+            <li><a href="{{ url_for('store.shop', category='audio') }}">Wireless Audio & Buds</a></li>
+            <li><a href="{{ url_for('store.shop', category='accessories') }}">GaN Fast Chargers</a></li>
+            <li><a href="{{ url_for('store.shop', deals='true') }}">Special Offers & Deals</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Customer Care -->
+        <div class="footer-col">
+          <h4>Customer Care</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('store.track_order') }}">Verify Reservation Pass</a></li>
+            <li><a href="{{ url_for('store.shipping_policy') }}">Showroom Store Pickup Policy</a></li>
+            <li><a href="{{ url_for('store.return_policy') }}">Returns & Warranty Policy</a></li>
+            <li><a href="{{ url_for('store.about') }}">About Avid Malik, Danish Malik & Showroom</a></li>
+            <li><a href="{{ url_for('store.contact') }}">Showroom Location & Contact</a></li>
+            <li><a href="{{ url_for('store.terms') }}">Terms & Privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Newsletter & Security -->
+        <div class="footer-col">
+          <h4>Stay Updated</h4>
+          <p style="font-size: 0.875rem; line-height: 1.5; margin-bottom: 1rem;">
+            Subscribe to receive exclusive launches, limited flash discount codes, and tech reviews.
+          </p>
+          <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing to High Tech Mobile!', 'success'); this.reset();">
+            <input type="email" placeholder="Your email address" required>
+            <button type="submit" class="btn-primary" style="padding:0.6rem 1.25rem;">Subscribe</button>
+          </form>
+          
+          <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 0.75rem; color:#64748B;">Accepted Payments:</span>
+            <span style="background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #E2E8F0; font-weight:700;">UPI</span>
+            <span style="background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #E2E8F0; font-weight:700;">RuPay</span>
+            <span style="background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #E2E8F0; font-weight:700;">Cards</span>
+            <span style="background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #10B981; font-weight:700;">COD</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 {{ store_name }}. All rights reserved. Managed by Danish Malik.</div>
+        <div style="display:flex; gap:1.5rem;">
+          <a href="{{ url_for('store.terms') }}">Privacy Policy</a>
+          <a href="{{ url_for('store.terms') }}">Terms of Service</a>
+          <a href="{{ url_for('store.shipping_policy') }}">Shipping Rules</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container"></div>
+
+  <!-- Client Script -->
+  <script src="{{ url_for('static', filename='js/store.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

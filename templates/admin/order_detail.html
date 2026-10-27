@@ -1,0 +1,215 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Manage Booking #{{ order.order_number }} | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1050px;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <a href="{{ url_for('admin.orders') }}" style="font-size: 0.85rem; color: var(--electric-blue); font-weight: 600; text-decoration: none;">&larr; Back to All Reservations</a>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy-dark); margin-top: 0.5rem;">
+        Reservation Token: {{ order.order_number }}
+      </h1>
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.35rem;">
+        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.25);">
+          DUKAN PAR AAKAR KHARIDEIN (SHOWROOM PICKUP)
+        </span>
+        <span style="font-size: 0.82rem; color: #64748B;">Booked on {{ order.created_at }}</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="https://wa.me/91{{ order.customer_phone }}?text=Namaste%20{{ order.customer_name|urlencode }},%20this%20is%20Avid%20Malik%20%26%20Danish%20Malik%20from%20HIGH%20TECH%20MOBILE.%20Your%20device%20reservation%20%23{{ order.order_number }}%20is%20ready%20at%20our%20showroom!" target="_blank" rel="noopener" class="btn-primary" style="background: #25D366; border: none; padding: 0.55rem 1rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 700;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        WhatsApp Customer
+      </a>
+      <button onclick="window.print()" class="btn-secondary" style="background:#FFF; color:var(--navy-dark); border-color:#CBD5E1; padding:0.55rem 1rem; font-size:0.85rem;">
+        Print Booking Pass
+      </button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: flex-start;">
+    
+    <!-- Left Column: Items & Customer Details -->
+    <div>
+      
+      <!-- Reserved Items Card -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Reserved Device(s)</h3>
+        
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Device Description</th>
+              <th style="text-align: center;">Qty</th>
+              <th style="text-align: right;">Showroom Price</th>
+              <th style="text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for itm in items %}
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--navy-dark);">{{ itm.product_name }}</div>
+                {% if itm.variant_details %}
+                  <div style="font-size: 0.78rem; color: #64748B; margin-top: 0.15rem;">Specification: {{ itm.variant_details }}</div>
+                {% endif %}
+              </td>
+              <td style="text-align: center; font-weight: 700;">{{ itm.quantity }}</td>
+              <td style="text-align: right;">{{ itm.unit_price|inr }}</td>
+              <td style="text-align: right; font-weight: 800; color: var(--navy-dark);">{{ itm.total_price|inr }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Totals summary -->
+        <div style="width: 300px; margin-left: auto; font-size: 0.9rem; margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #64748B;">
+            <span>Showroom Subtotal:</span>
+            <span style="font-weight: 600; color: var(--navy-dark);">{{ order.subtotal|inr }}</span>
+          </div>
+          {% if order.discount_amount > 0 %}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #10B981;">
+            <span>Coupon Discount ({{ order.coupon_code }}):</span>
+            <span style="font-weight: 700;">-{{ order.discount_amount|inr }}</span>
+          </div>
+          {% endif %}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: #64748B;">
+            <span>Delivery Fee:</span>
+            <span style="font-weight: 700; color: #10B981;">FREE (Store Pickup)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; color: #64748B; font-size: 0.8rem;">
+            <span>GST Included (18%):</span>
+            <span>{{ order.tax_amount|inr }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 800; color: var(--navy-dark); border-top: 1px solid #E2E8F0; padding-top: 0.75rem;">
+            <span>Payable at Counter:</span>
+            <span style="color: var(--electric-blue);">{{ order.total_amount|inr }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Showroom Pickup Details Card -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Customer & Store Visit Details</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; font-size: 0.9rem;">
+          <div style="background: #F8FAFC; padding: 1.25rem; border-radius: 8px; border: 1px solid #EDF2F7;">
+            <h4 style="font-weight: 700; color: #334155; margin-bottom: 0.6rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Customer Contact</h4>
+            <div style="font-weight: 800; color: var(--navy-dark); font-size: 1.05rem;">{{ order.customer_name }}</div>
+            <div style="color: #06152B; margin-top: 0.4rem; font-weight: 600;">
+              📞 <a href="tel:{{ order.customer_phone }}" style="color: var(--electric-blue); text-decoration: none;">{{ order.customer_phone }}</a>
+            </div>
+            <div style="color: #64748B; margin-top: 0.25rem; font-size: 0.85rem;">✉️ {{ order.customer_email }}</div>
+            <div style="margin-top: 0.85rem;">
+              <a href="https://wa.me/91{{ order.customer_phone }}?text=Namaste%20{{ order.customer_name|urlencode }},%20this%20is%20Avid%20Malik%20%26%20Danish%20Malik%20from%20HIGH%20TECH%20MOBILE." target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.35rem; color: #059669; font-weight: 700; font-size: 0.85rem; text-decoration: none;">
+                Open WhatsApp Chat &rarr;
+              </a>
+            </div>
+          </div>
+
+          <div style="background: #F8FAFC; padding: 1.25rem; border-radius: 8px; border: 1px solid #EDF2F7;">
+            <h4 style="font-weight: 700; color: #334155; margin-bottom: 0.6rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Showroom Visit Schedule</h4>
+            <div style="font-weight: 700; color: var(--navy-dark);">
+              📅 Date: <span style="color: var(--electric-blue);">{{ address.preferred_date or 'Showroom Visit' }}</span>
+            </div>
+            {% if address.preferred_time %}
+            <div style="font-weight: 600; color: #334155; margin-top: 0.25rem;">
+              ⏰ Slot: {{ address.preferred_time }}
+            </div>
+            {% endif %}
+            <div style="color: #64748B; margin-top: 0.25rem;">
+              📍 Customer City: <strong>{{ address.city or 'Local Customer' }}</strong>
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #64748B; border-top: 1px dashed #CBD5E1; padding-top: 0.5rem;">
+              Showroom: Ruheri, Hathras, Uttar Pradesh (10:00 AM – 9:00 PM) • <a href="https://www.google.com/maps?q=27.643748,78.063498" target="_blank" rel="noopener" style="color:var(--electric-blue); font-weight:600;">View Map</a>
+            </div>
+          </div>
+        </div>
+
+        {% if order.notes %}
+        <div style="margin-top: 1.25rem; padding: 0.85rem 1rem; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; font-size: 0.85rem; color: #92400E;">
+          <strong>Customer Note:</strong> {{ order.notes }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Order Status Transition History -->
+      {% if history %}
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Reservation Audit Trail</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          {% for h in history %}
+          <div style="display: flex; gap: 1rem; font-size: 0.85rem; border-left: 3px solid var(--electric-blue); padding-left: 1rem;">
+            <div style="color: #94A3B8; min-width: 140px; font-family: monospace;">{{ h.created_at }}</div>
+            <div>
+              <strong style="color: var(--navy-dark); text-transform: uppercase;">{{ h.new_status }}</strong>
+              <span style="color: #64748B;">by {{ h.changed_by }}</span>
+              {% if h.notes %}<div style="color: #334155; margin-top: 0.15rem;">{{ h.notes }}</div>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Right Column: Status Controls & Counter Verification Form -->
+    <div>
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-lg); padding: 1.75rem; position: sticky; top: calc(68px + 1.5rem); box-shadow: var(--shadow-sm);">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Store Fulfilment Desk</h3>
+
+        <form action="{{ url_for('admin.order_update_status', id=order.id) }}" method="POST">
+          
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Reservation / Counter Status</label>
+            <select name="fulfilment_status" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; outline: none; background: #FFF; font-weight: 600;">
+              <option value="confirmed" {% if order.fulfilment_status == 'confirmed' %}selected{% endif %}>Confirmed (Phone Reserved)</option>
+              <option value="processing" {% if order.fulfilment_status == 'processing' %}selected{% endif %}>Kept in Storage / Sealed Box Ready</option>
+              <option value="ready_pickup" {% if order.fulfilment_status == 'ready_pickup' %}selected{% endif %}>Ready at Counter for Visit</option>
+              <option value="delivered" {% if order.fulfilment_status == 'delivered' %}selected{% endif %}>Collected by Customer (Done)</option>
+              <option value="cancelled" {% if order.fulfilment_status == 'cancelled' %}selected{% endif %}>Cancelled / Not Collected</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Counter Payment Status</label>
+            <select name="payment_status" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; outline: none; background: #FFF; font-weight: 600;">
+              <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>Pending (Pay at Counter)</option>
+              <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>Paid / Settled at Counter</option>
+              <option value="refunded" {% if order.payment_status == 'refunded' %}selected{% endif %}>Refunded</option>
+              <option value="failed" {% if order.payment_status == 'failed' %}selected{% endif %}>Cancelled / Failed</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Assigned Counter / Staff</label>
+            <input type="text" name="courier_name" value="{{ order.courier_name or 'Counter #1 (Avid Malik / Danish Malik)' }}" placeholder="e.g. Counter #1 (Avid Malik / Danish Malik)" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Showroom Token / Verification Pass</label>
+            <input type="text" name="tracking_number" value="{{ order.tracking_number or order.order_number }}" placeholder="e.g. HTM-PASS-01" style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem; font-family: monospace; font-weight: 700; color: var(--electric-blue);">
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Internal Store Staff Note</label>
+            <textarea name="notes" rows="2" placeholder="e.g. Customer called, confirmed visit at 5:00 PM today..." style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.875rem;">{{ order.notes or '' }}</textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.95rem;">
+            Save & Update Reservation
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

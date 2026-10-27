@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 900px;">
+  
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <span class="section-tag">Customer Support</span>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--navy-dark); margin-top: 0.25rem;">
+      Get in Touch with HIGH TECH MOBILE
+    </h1>
+    <p style="color: #64748B; font-size: 0.95rem;">Have questions about smartphones, delivery estimates, or order tracking? We're here to help.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; align-items: flex-start;">
+    
+    <!-- Info -->
+    <div style="background: #06152B; border-radius: var(--radius-xl); padding: 2.5rem; color: #FFF; box-shadow: var(--shadow-md);">
+      <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 1.5rem; color: #FFF;">Store Information</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.9rem; color: #CBD5E1;">
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: #38BDF8; font-weight: 700; margin-bottom: 0.25rem;">Store Name</div>
+          <div style="color: #FFF; font-weight: 600;">{{ store_name }}</div>
+        </div>
+
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: #38BDF8; font-weight: 700; margin-bottom: 0.25rem;">Store Owners & Management</div>
+          <div style="color: #FFF; font-weight: 700; font-size: 1rem;">Avid Malik & Danish Malik</div>
+        </div>
+
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: #38BDF8; font-weight: 700; margin-bottom: 0.25rem;">Showroom Physical Location</div>
+          <div style="color: #FFF; font-weight: 600;">{{ store_address }}</div>
+          <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+            <a href="https://www.google.com/maps?q=27.643748,78.063498" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:0.4rem; color:#38BDF8; font-weight:700; font-size:0.85rem; text-decoration:none;">
+              🗺️ Open in Google Maps &rarr;
+            </a>
+            <a href="https://www.where-am-i.co/@27.643748,78.063498,z14" target="_blank" rel="noopener" style="color:#94A3B8; font-size:0.8rem; text-decoration:underline;">
+              Live GPS: 27.643748, 78.063498 (Where Am I)
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: #38BDF8; font-weight: 700; margin-bottom: 0.25rem;">Contact Channels</div>
+          <div>📞 {{ contact_phone }}</div>
+          <div>✉️ {{ contact_email }}</div>
+        </div>
+
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: #38BDF8; font-weight: 700; margin-bottom: 0.25rem;">Operating Hours</div>
+          <div>Monday - Saturday: 10:00 AM - 8:30 PM IST</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Send a Message</h3>
+      
+      <form onsubmit="event.preventDefault(); showToast('Thank you! Your message has been received by our support team.', 'success'); this.reset();">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Your Name *</label>
+          <input type="text" required placeholder="Full Name" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Email Address *</label>
+          <input type="email" required placeholder="name@example.in" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Mobile Number</label>
+          <input type="tel" placeholder="10-digit mobile number" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Your Message *</label>
+          <textarea rows="4" required placeholder="Inquiry details or order reference..." style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.9rem; outline: none;"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Submit Message
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

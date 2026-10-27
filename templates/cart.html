@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart | {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+  
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy-dark); margin-bottom: 2rem;">
+    Your Shopping Cart ({{ cart.total_items }} items)
+  </h1>
+
+  {% if cart.cart_items %}
+  <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2.5rem; align-items: flex-start;">
+    
+    <!-- 1. Cart Items List -->
+    <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm);">
+      
+      <div style="padding: 1.25rem 1.5rem; background: #F8FAFC; border-bottom: 1px solid var(--border-light); font-size: 0.85rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 40px;">
+        <span>Item Details</span>
+        <span style="text-align: right;">Unit Price</span>
+        <span style="text-align: center;">Quantity</span>
+        <span style="text-align: right;">Subtotal</span>
+        <span></span>
+      </div>
+
+      <div style="padding: 0 1.5rem;">
+        {% for item in cart.cart_items %}
+        <div style="display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 40px; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--border-light);">
+          
+          <!-- Product Info -->
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="width: 70px; height: 70px; border-radius: 8px; background: #F1F5F9; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; padding: 4px;">
+              <img src="{{ item.image_url or '/static/images/placeholder.svg' }}" alt="{{ item.name }}" style="max-height: 100%; object-fit: contain;">
+            </div>
+            <div>
+              <a href="{{ url_for('store.product_detail', slug=item.slug) }}" style="font-size: 0.95rem; font-weight: 600; color: var(--navy-dark); display: block; margin-bottom: 0.25rem;">
+                {{ item.name }}
+              </a>
+              {% if item.color_name or item.storage %}
+                <div style="font-size: 0.8rem; color: #64748B;">
+                  {{ item.color_name }} {% if item.storage != 'N/A' %}• {{ item.storage }}{% endif %}
+                </div>
+              {% endif %}
+              {% if item.available_stock <= 5 %}
+                <div style="font-size: 0.75rem; color: #EF4444; font-weight: 600;">Only {{ item.available_stock }} left in stock</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Unit Price -->
+          <div style="text-align: right; font-weight: 600; color: var(--navy-dark); font-size: 0.95rem;">
+            {{ item.unit_price|inr }}
+          </div>
+
+          <!-- Quantity Controls -->
+          <div style="display: flex; justify-content: center;">
+            <div style="display: inline-flex; align-items: center; border: 1px solid var(--border-light); border-radius: 6px; overflow: hidden;">
+              <button onclick="updateCartQuantity('{{ item.item_id }}', {{ item.quantity - 1 }})" style="background: #F8FAFC; border: none; padding: 0.35rem 0.65rem; cursor: pointer; font-weight: 700; color: #475569;">−</button>
+              <span style="padding: 0.35rem 0.75rem; font-size: 0.875rem; font-weight: 600; min-width: 32px; text-align: center;">{{ item.quantity }}</span>
+              <button onclick="updateCartQuantity('{{ item.item_id }}', {{ item.quantity + 1 }})" style="background: #F8FAFC; border: none; padding: 0.35rem 0.65rem; cursor: pointer; font-weight: 700; color: #475569;">+</button>
+            </div>
+          </div>
+
+          <!-- Line Total -->
+          <div style="text-align: right; font-weight: 700; color: var(--navy-dark); font-size: 1rem;">
+            {{ item.line_total|inr }}
+          </div>
+
+          <!-- Remove Item -->
+          <div style="text-align: right;">
+            <button onclick="removeCartItem('{{ item.item_id }}')" title="Remove item" style="background: none; border: none; color: #94A3B8; cursor: pointer; padding: 4px; transition: color 0.2s ease;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Bottom action bar -->
+      <div style="padding: 1.25rem 1.5rem; background: #F8FAFC; display: flex; justify-content: space-between; align-items: center;">
+        <a href="{{ url_for('store.shop') }}" class="btn-outline" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+          &larr; Continue Shopping
+        </a>
+        <div style="font-size: 0.85rem; color: #64748B;">
+          Prices are updated dynamically based on real warehouse inventory.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. Order Summary Sidebar -->
+    <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.75rem; box-shadow: var(--shadow-sm); position: sticky; top: calc(var(--header-height) + 1.5rem);">
+      
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 1.25rem;">Reservation Summary</h3>
+
+      <!-- Store Pickup Highlight -->
+      <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #1E40AF; line-height: 1.5;">
+        <strong>🏬 Dukan Par Aakar Kharidein (Store Pickup)</strong>
+        <div style="font-size: 0.8rem; margin-top: 0.25rem;">Ruheri, Hathras, Uttar Pradesh • Open 10 AM - 9 PM</div>
+        <a href="https://www.google.com/maps?q=27.643748,78.063498" target="_blank" rel="noopener" style="display:inline-block; margin-top:0.35rem; color:#1D4ED8; font-weight:700; text-decoration:underline; font-size:0.78rem;">
+          🗺️ View Live Showroom Location (Google Maps)
+        </a>
+      </div>
+
+      <!-- Pricing lines -->
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem; color: #475569;">
+        <span>Cart Subtotal</span>
+        <span style="font-weight: 600; color: var(--navy-dark);">{{ cart.subtotal|inr }}</span>
+      </div>
+
+      {% if cart.discount_amount > 0 %}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem; color: #10B981;">
+        <span>Coupon Discount ({{ cart.coupon_code }})</span>
+        <span style="font-weight: 700;">-{{ cart.discount_amount|inr }}</span>
+      </div>
+      {% endif %}
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem; color: #475569;">
+        <span>Store Collection Fee</span>
+        <span style="color: #10B981; font-weight: 700;">FREE (₹0)</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.85rem; color: #64748B; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+        <span>Estimated GST Included</span>
+        <span>{{ cart.gst_component|inr }}</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 1.35rem; font-weight: 800; color: var(--navy-dark);">
+        <span>Total Payable at Counter</span>
+        <span style="color: var(--electric-blue);">{{ cart.total_amount|inr }}</span>
+      </div>
+
+      <!-- Coupon Form -->
+      <div style="margin-bottom: 1.75rem;">
+        {% if cart.coupon_code %}
+          <div style="background: #ECFDF5; border: 1px dashed #10B981; border-radius: 8px; padding: 0.6rem 0.85rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+            <span>Coupon applied: <b>{{ cart.coupon_code }}</b></span>
+            <button onclick="removeCoupon()" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;">Remove</button>
+          </div>
+        {% else %}
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="coupon-code-input" placeholder="Promo code (e.g. TECH10)" style="flex:1; padding:0.5rem 0.75rem; border:1px solid var(--border-light); border-radius:6px; font-size:0.85rem; text-transform:uppercase;">
+            <button onclick="applyCoupon()" class="btn-secondary" style="padding:0.5rem 1rem; border-radius:6px; font-size:0.85rem; background:var(--navy-dark); border-color:var(--navy-dark);">Apply</button>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Checkout Button -->
+      <a href="{{ url_for('store.checkout') }}" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">
+        Reserve for Showroom Pickup &rarr;
+      </a>
+
+      <!-- Security guarantee -->
+      <div style="margin-top: 1.25rem; text-align: center; font-size: 0.75rem; color: #94A3B8; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>No Advance Payment Required • Inspect & Pay at Counter</span>
+      </div>
+
+    </div>
+
+  </div>
+  {% else %}
+  <!-- Empty Cart -->
+  <div style="background: #FFFFFF; border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 5rem 2rem; text-align: center;">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" style="margin: 0 auto 1.5rem auto;">
+      <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+    </svg>
+    <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.5rem;">Your Shopping Cart is Empty</h2>
+    <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 2rem;">Discover latest flagship smartphones, GaN fast chargers, and smartwatches.</p>
+    <a href="{{ url_for('store.shop') }}" class="btn-primary" style="padding: 0.75rem 2rem;">
+      Explore Store Products
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+async function updateCartQuantity(itemId, newQty) {
+  try {
+    const res = await fetch('/api/cart/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_id: itemId, quantity: newQty })
+    });
+    if (res.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    showToast('Failed to update item quantity.', 'danger');
+  }
+}
+
+async function removeCartItem(itemId) {
+  try {
+    const res = await fetch('/api/cart/remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_id: itemId })
+    });
+    if (res.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    showToast('Failed to remove item.', 'danger');
+  }
+}
+
+async function applyCoupon() {
+  const code = document.getElementById('coupon-code-input').value.trim();
+  if (!code) return;
+  try {
+    const res = await fetch('/api/cart/apply-coupon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'success') {
+      window.location.reload();
+    } else {
+      showToast(data.message || 'Invalid coupon', 'danger');
+    }
+  } catch (err) {
+    showToast('Network error applying coupon.', 'danger');
+  }
+}
+
+async function removeCoupon() {
+  try {
+    const res = await fetch('/api/cart/remove-coupon', { method: 'POST' });
+    if (res.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    showToast('Network error removing coupon.', 'danger');
+  }
+}
+</script>
+{% endblock %}
